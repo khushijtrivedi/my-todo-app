@@ -1,11 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTodoContext } from "../context/TodoContext";
 
 const CreateListPage = () => {
   const { todoList, addItem, removeItem, updateItem } = useTodoContext();
   const [newItem, setNewItem] = useState("");
-  const [listTitle, setListTitle] = useState("My To-Do List"); // Initial title
+  const [listTitle, setListTitle] = useState(""); // Title should be persisted
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  // Load list title from localStorage on component mount
+  useEffect(() => {
+    const savedTitle = localStorage.getItem("listTitle");
+    if (savedTitle) {
+      setListTitle(savedTitle); // Set the saved title
+    } else {
+      setListTitle("My To-Do List"); // Default title
+    }
+  }, []);
+
+  // Save the list title to localStorage when it changes
+  useEffect(() => {
+    if (listTitle) {
+      localStorage.setItem("listTitle", listTitle); // Save title to localStorage
+    }
+  }, [listTitle]);
 
   // Handle adding a new item
   const handleAddItem = (e) => {
@@ -72,9 +89,7 @@ const CreateListPage = () => {
         {todoList.map((item) => (
           <li
             key={item.id}
-            className={`flex items-center justify-between p-4 rounded-md shadow-md ${
-              item.checked ? "bg-red-500 text-white" : "bg-green-500 text-white"
-            }`}
+            className={`flex items-center justify-between p-4 rounded-md shadow-md ${item.checked ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}
           >
             <div className="flex items-center">
               <input

@@ -6,6 +6,7 @@ export const TodoProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [todoList, setTodoList] = useState([]);
 
+  // Load user and list data from localStorage when the component mounts
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const storedList = localStorage.getItem("todoList");
@@ -14,8 +15,11 @@ export const TodoProvider = ({ children }) => {
     if (storedList) setTodoList(JSON.parse(storedList));
   }, []);
 
+  // Save the todoList to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem("todoList", JSON.stringify(todoList));
+    if (todoList.length > 0) {
+      localStorage.setItem("todoList", JSON.stringify(todoList));
+    }
   }, [todoList]);
 
   // Login function
