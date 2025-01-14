@@ -1,16 +1,18 @@
-// src/App.js
 import React from "react";
-import Header from "./component/Header";
+import Header from "./components/Header";
+import { TodoProvider } from "./context/TodoContext";
 
 const App = () => {
-  const handleLogin = () => {
-    alert("Login button clicked!");
+  const handleSaveList = () => {
+    alert("Save List button clicked!");
   };
 
   return (
-    <div>
-      <Header onLogin={handleLogin} />
-    </div>
+    <TodoProvider>
+      <div>
+        <Header onSaveList={handleSaveList} />
+      </div>
+    </TodoProvider>
   );
 };
 
