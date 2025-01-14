@@ -1,41 +1,35 @@
 import React, { useState } from "react";
 import { useTodoContext } from "../context/TodoContext";
 import LoginForm from "./LoginForm";
-import CreateListForm from "./CreateListForm";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [showLoginForm, setShowLoginForm] = useState(false);
-  const [showCreateListForm, setShowCreateListForm] = useState(false);
-  const [showCreateListOption, setShowCreateListOption] = useState(false); // New state to handle Create List button visibility
+  const [showCreateListOption, setShowCreateListOption] = useState(false); 
   const { user, login, logout } = useTodoContext();
+  const navigate = useNavigate(); // Initialize the navigate function
 
-  // Show the login form when the Login button is clicked
   const handleLoginClick = () => {
     setShowLoginForm(true);
-    setShowCreateListOption(false); // Ensure the "Create List" option is hidden when login button is clicked
+    setShowCreateListOption(false);
   };
 
-  // Close the login form
   const handleCloseLoginForm = () => {
     setShowLoginForm(false);
   };
 
-  // Handle Save List button click
   const handleSaveListClick = () => {
     if (!user) {
-      // If user is not logged in, show the login form with option to create list without login
       setShowLoginForm(true);
-      setShowCreateListOption(true); // Show "Create List Without Login" option
+      setShowCreateListOption(true);
     } else {
-      // If logged in, show the create list form directly
-      setShowCreateListForm(true);
+      navigate("/create-list"); // Navigate to Create List page
     }
   };
 
-  // Allow user to create list without login
   const handleCreateListWithoutLogin = () => {
     setShowLoginForm(false);
-    setShowCreateListForm(true);
+    navigate("/create-list"); // Navigate to Create List page
   };
 
   return (
@@ -82,17 +76,6 @@ const Header = () => {
             </div>
           )}
         </LoginForm>
-      )}
-
-      {/* Show the create list form (after login or without login) */}
-      {showCreateListForm && (
-        <CreateListForm
-          onClose={() => setShowCreateListForm(false)}
-          onListCreated={(list) => {
-            console.log(list);
-            setShowCreateListForm(false); // Close form after list creation
-          }}
-        />
       )}
     </header>
   );

@@ -8,9 +8,9 @@ const LoginForm = ({ onClose, onLogin, children }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const userData = { name, email, password };
-    localStorage.setItem("user", JSON.stringify(userData)); // Save to localStorage
-    onLogin(userData); // Trigger login callback to update context
-    onClose(); // Close the login form
+    localStorage.setItem("user", JSON.stringify(userData)); 
+    onLogin(userData); 
+    onClose();
   };
 
   return (
@@ -76,7 +76,6 @@ const LoginForm = ({ onClose, onLogin, children }) => {
             </button>
           </div>
         </form>
-        {/* Render additional content passed through children */}
         {children && <div className="text-center mt-4">{children}</div>}
       </div>
     </div>

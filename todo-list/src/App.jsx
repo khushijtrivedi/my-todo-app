@@ -1,17 +1,19 @@
 import React from "react";
-import Header from "./components/Header";
-import { TodoProvider } from "./context/TodoContext";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom"; 
+import { TodoProvider } from "./context/TodoContext";  
+import Header from "./components/Header"; 
+import CreateListPage from "./components/CreateListPage";
 
 const App = () => {
-  const handleSaveList = () => {
-    alert("Save List button clicked!");
-  };
-
   return (
     <TodoProvider>
-      <div>
-        <Header onSaveList={handleSaveList} />
-      </div>
+      <Router>
+        <Header />
+        <Routes>
+          <Route path="/" element={<div />} />
+          <Route path="/create-list" element={<CreateListPage />} /> 
+        </Routes>
+      </Router>
     </TodoProvider>
   );
 };
