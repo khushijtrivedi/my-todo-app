@@ -1,17 +1,41 @@
 import React, { useState } from "react";
-import { useTodoContext } from "../context/TodoContext"; // Import context to manage login state
+import { useTodoContext } from "../context/TodoContext";
 import LoginForm from "./LoginForm";
+import CreateListForm from "./CreateListForm";
 
-const Header = ({ onSaveList }) => {
+const Header = () => {
   const [showLoginForm, setShowLoginForm] = useState(false);
-  const { user, login, logout } = useTodoContext(); // Access login state and methods from context
+  const [showCreateListForm, setShowCreateListForm] = useState(false);
+  const [showCreateListOption, setShowCreateListOption] = useState(false); // New state to handle Create List button visibility
+  const { user, login, logout } = useTodoContext();
 
+  // Show the login form when the Login button is clicked
   const handleLoginClick = () => {
-    setShowLoginForm(true); // Show login form when login button is clicked
+    setShowLoginForm(true);
+    setShowCreateListOption(false); // Ensure the "Create List" option is hidden when login button is clicked
   };
 
+  // Close the login form
   const handleCloseLoginForm = () => {
-    setShowLoginForm(false); // Close login form
+    setShowLoginForm(false);
+  };
+
+  // Handle Save List button click
+  const handleSaveListClick = () => {
+    if (!user) {
+      // If user is not logged in, show the login form with option to create list without login
+      setShowLoginForm(true);
+      setShowCreateListOption(true); // Show "Create List Without Login" option
+    } else {
+      // If logged in, show the create list form directly
+      setShowCreateListForm(true);
+    }
+  };
+
+  // Allow user to create list without login
+  const handleCreateListWithoutLogin = () => {
+    setShowLoginForm(false);
+    setShowCreateListForm(true);
   };
 
   return (
@@ -21,7 +45,7 @@ const Header = ({ onSaveList }) => {
         <div className="space-x-4">
           <button
             className="bg-white text-blue-600 font-medium px-4 py-2 rounded-md shadow hover:bg-blue-50 transition duration-300"
-            onClick={onSaveList}
+            onClick={handleSaveListClick}
           >
             Save the List
           </button>
@@ -43,8 +67,33 @@ const Header = ({ onSaveList }) => {
         </div>
       </div>
 
-      {/* Show the login form if the login button is clicked */}
-      {showLoginForm && <LoginForm onClose={handleCloseLoginForm} onLogin={login} />}
+      {/* Show the login form when login button is clicked */}
+      {showLoginForm && (
+        <LoginForm onClose={handleCloseLoginForm} onLogin={login}>
+          {/* Show "Create List Without Login" option only when Save List is clicked and user is not logged in */}
+          {showCreateListOption && (
+            <div className="text-center mt-4">
+              <button
+                onClick={handleCreateListWithoutLogin}
+                className="text-blue-600 hover:underline"
+              >
+                Create List Without Login
+              </button>
+            </div>
+          )}
+        </LoginForm>
+      )}
+
+      {/* Show the create list form (after login or without login) */}
+      {showCreateListForm && (
+        <CreateListForm
+          onClose={() => setShowCreateListForm(false)}
+          onListCreated={(list) => {
+            console.log(list);
+            setShowCreateListForm(false); // Close form after list creation
+          }}
+        />
+      )}
     </header>
   );
 };
