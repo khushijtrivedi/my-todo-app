@@ -1,54 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { useTodoContext } from "../context/TodoContext";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CreateListPage = () => {
-  const { todoList, addItem, removeItem, updateItem } = useTodoContext();
+  const { todoLists, addItem, removeItem, updateItem, addList } = useTodoContext();
+  const { listId } = useParams();
   const [newItem, setNewItem] = useState("");
-  const [listTitle, setListTitle] = useState(""); // Title should be persisted
+  const [listTitle, setListTitle] = useState("My To-Do List");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [todoList, setTodoList] = useState([]);
+  const navigate = useNavigate();
 
-  // Load list title from localStorage on component mount
   useEffect(() => {
-    const savedTitle = localStorage.getItem("listTitle");
-    if (savedTitle) {
-      setListTitle(savedTitle); // Set the saved title
-    } else {
-      setListTitle("My To-Do List"); // Default title
+    if (listId) {
+      const existingList = todoLists.find((list) => list.id === listId);
+      if (existingList) {
+        setListTitle(existingList.title);
+        setTodoList(existingList.items);
+      }
     }
-  }, []);
+  }, [listId, todoLists]);
 
-  // Save the list title to localStorage when it changes
-  useEffect(() => {
-    if (listTitle) {
-      localStorage.setItem("listTitle", listTitle); // Save title to localStorage
-    }
-  }, [listTitle]);
-
-  // Handle adding a new item
   const handleAddItem = (e) => {
     e.preventDefault();
     if (!newItem.trim()) return;
 
     const item = { id: Date.now(), name: newItem, checked: false };
-    addItem(item);
-    setNewItem(""); // Clear the input after adding
+    setTodoList((prev) => [...prev, item]);
+    setNewItem("");
   };
 
-  // Handle checkbox change
-  const handleCheckboxChange = (id) => {
-    const item = todoList.find((item) => item.id === id);
-    updateItem(id, { ...item, checked: !item.checked });
+  const handleSaveList = () => {
+  const updatedList = {
+    id: listId || `${listTitle}_${Date.now()}`, // Use existing ID if editing
+    title: listTitle,
+    items: todoList,
+    createdBy: JSON.parse(localStorage.getItem("user")).email,
   };
 
-  // Handle title change
-  const handleTitleChange = (e) => {
-    setListTitle(e.target.value);
-  };
-
-  // Save title after editing
-  const handleSaveTitle = () => {
-    setIsEditingTitle(false);
-  };
+  addList(updatedList); // addList will update if the title matches
+  navigate("/my-lists");
+};
 
   return (
     <div className="container mx-auto py-8">
@@ -57,8 +49,8 @@ const CreateListPage = () => {
           <input
             type="text"
             value={listTitle}
-            onChange={handleTitleChange}
-            onBlur={handleSaveTitle}
+            onChange={(e) => setListTitle(e.target.value)}
+            onBlur={() => setIsEditingTitle(false)}
             autoFocus
             className="text-2xl font-bold text-center border-b-2 border-gray-300 focus:border-blue-500 outline-none"
           />
@@ -89,19 +81,21 @@ const CreateListPage = () => {
         {todoList.map((item) => (
           <li
             key={item.id}
-            className={`flex items-center justify-between p-4 rounded-md shadow-md ${item.checked ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}
+            className={`flex items-center justify-between p-4 rounded-md shadow-md ${item.checked ? "bg-green-300 text-black" : "bg-red-400 text-white"}`}
           >
             <div className="flex items-center">
               <input
                 type="checkbox"
                 checked={item.checked}
-                onChange={() => handleCheckboxChange(item.id)}
+                onChange={() => setTodoList((prev) =>
+                  prev.map((i) => (i.id === item.id ? { ...i, checked: !i.checked } : i))
+                )}
                 className="mr-4"
               />
-              <span className="flex-1">{item.name}</span>
+              <span>{item.name}</span>
             </div>
             <button
-              onClick={() => removeItem(item.id)}
+              onClick={() => setTodoList((prev) => prev.filter((i) => i.id !== item.id))}
               className="text-white hover:text-gray-200"
             >
               &times;
@@ -109,6 +103,13 @@ const CreateListPage = () => {
           </li>
         ))}
       </ul>
+
+      <button
+        onClick={handleSaveList}
+        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md"
+      >
+        Save List
+      </button>
     </div>
   );
 };

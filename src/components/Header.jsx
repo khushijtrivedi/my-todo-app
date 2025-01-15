@@ -32,6 +32,11 @@ const Header = () => {
     navigate("/create-list"); // Navigate to Create List page
   };
 
+  const handleLogoutClick = () => {
+    logout(); // Log out the user
+    navigate("/"); // Redirect to home page after logout
+  };
+
   return (
     <header className="bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-600 text-white py-3 shadow-md">
       <div className="container mx-auto flex justify-between items-center px-4">
@@ -46,7 +51,7 @@ const Header = () => {
           {user ? (
             <button
               className="bg-white text-red-600 font-medium px-4 py-2 rounded-md shadow hover:bg-red-50 transition duration-300"
-              onClick={logout}
+              onClick={handleLogoutClick} // Use handleLogoutClick for logout
             >
               Logout
             </button>

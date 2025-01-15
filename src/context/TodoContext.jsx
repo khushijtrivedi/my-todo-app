@@ -5,55 +5,63 @@ const TodoContext = createContext();
 export const TodoProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [todoList, setTodoList] = useState([]);
+  const [todoLists, setTodoLists] = useState([]); // Store all lists
 
-  // Load user and list data from localStorage when the component mounts
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    const storedList = localStorage.getItem("todoList");
+    const storedLists = localStorage.getItem("todoLists");
 
     if (storedUser) setUser(JSON.parse(storedUser));
-    if (storedList) setTodoList(JSON.parse(storedList));
+    if (storedLists) setTodoLists(JSON.parse(storedLists));
   }, []);
 
-  // Save the todoList to localStorage when it changes
   useEffect(() => {
-    if (todoList.length > 0) {
-      localStorage.setItem("todoList", JSON.stringify(todoList));
+    if (todoLists.length > 0) {
+      localStorage.setItem("todoLists", JSON.stringify(todoLists));
     }
-  }, [todoList]);
+  }, [todoLists]);
 
-  // Login function
   const login = (userData) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  // Logout function
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
   };
 
-  // Add an item to the list
   const addItem = (item) => {
     setTodoList((prevList) => [...prevList, item]);
   };
 
-  // Remove an item from the list
   const removeItem = (id) => {
     setTodoList((prevList) => prevList.filter((item) => item.id !== id));
   };
 
-  // Update an item in the list
   const updateItem = (id, updatedItem) => {
     setTodoList((prevList) =>
       prevList.map((item) => (item.id === id ? updatedItem : item))
     );
   };
 
+  const addList = (newList) => {
+  setTodoLists((prevLists) => {
+    const updatedLists = prevLists.map((list) =>
+      list.id === newList.id ? { ...list, ...newList } : list
+    );
+
+    const isExistingList = prevLists.some((list) => list.id === newList.id);
+    const finalLists = isExistingList ? updatedLists : [...prevLists, newList];
+
+    localStorage.setItem("todoLists", JSON.stringify(finalLists));
+    return finalLists;
+  });
+};
+
   return (
     <TodoContext.Provider
-      value={{ user, login, logout, todoList, addItem, removeItem, updateItem }}
+      value={{ user, login, logout, todoList, addItem, removeItem, updateItem, addList, todoLists }}
     >
       {children}
     </TodoContext.Provider>
